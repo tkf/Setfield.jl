@@ -143,6 +143,21 @@ struct UserDefinedLens <: Lens end
     end
 end
 
+@testset "summary(::Lens)" begin
+    @testset "round-trip: $desired" for desired in [
+            ".a"
+            "[1]"
+            raw"[$1]"
+            raw".a[1].b[$2]"
+        ]
+        actual = summary(eval(Meta.parse("@lens _$desired")))
+        @test actual === desired
+    end
+    # `summary` should fallback to the generic implementation for
+    # user-defined lenses.
+    @test endswith(summary(UserDefinedLens()), "UserDefinedLens")
+end
+
 function test_getset_laws(lens, obj, val1, val2)
 
     # set ∘ get

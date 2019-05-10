@@ -153,6 +153,14 @@ julia> set(t, (@lens _[1]), "1")
 ("1", "two")
 ```
 
+Use `summary` to get a string representation of a lens:
+
+```jldoctest
+julia> using Setfield
+
+julia> summary(@lens _.a[1].b)
+".a[1].b"
+```
 """
 macro lens(ex)
     obj, lens = parse_obj_lens(ex)
@@ -210,3 +218,11 @@ function show_generic(io::IO, args...)
     invoke(show, Types, io, args...)
 end
 show_generic(args...) = show_generic(stdout, args...)
+
+function Base.summary(io::IO, l::Lens)
+    if has_atlens_support(l)
+        print_application(io, l)
+    else
+        invoke(summary, Tuple{IO, Any}, io, l)
+    end
+end
