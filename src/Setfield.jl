@@ -23,4 +23,12 @@ for n in names(Setfield, all=true)
     end
 end
 
+function __init__()
+    # Define `constructor_of` only at run-time so that packages overloading
+    # `constructor_of` will break at precompile time.
+    if ccall(:jl_generating_output, Cint, ()) != 1
+        @eval Base.@deprecate constructor_of(T) constructorof(T) false
+    end
+end
+
 end
